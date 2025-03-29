@@ -5,12 +5,15 @@ import json
 import hashlib
 import logging
 from datetime import datetime
+
 from watchdog.observers.polling import PollingObserver as Observer
 from watchdog.events import FileSystemEventHandler
 
 # Add the parent directory to path to import modules correctly
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from config import MONITORED_DIRECTORY, BASELINE_FILE, LOG_FILE
+from scripts.email_alert import log_and_alert
 
 # Configure logging
 logging.basicConfig(
@@ -99,6 +102,7 @@ class FileChangeHandler(FileSystemEventHandler):
                 if not found_match:
                     logging.warning(f"New file hash: {file_hash}")
                     print(f"[INTEGRITY WARNING] New file not in baseline")
+                    log_and_alert('NEW_FILE', event.src_path, f"File hash: {file_hash}")
     
     def on_deleted(self, event):
         """Handle file/directory deletion events."""
@@ -109,6 +113,7 @@ class FileChangeHandler(FileSystemEventHandler):
             if event.src_path in baseline:
                 logging.warning(f"Baseline file deleted: {event.src_path}")
                 print(f"[INTEGRITY VIOLATION] Baseline file deleted: {event.src_path}")
+                log_and_alert('DELETED', event.src_path, 'Critical baseline file was deleted')
             else:
                 logging.info(f"Non-baseline file deleted: {event.src_path}")
                 print(f"[DELETED FILE] {event.src_path} (not in baseline)")
@@ -121,6 +126,7 @@ class FileChangeHandler(FileSystemEventHandler):
         if event.src_path in baseline:
             # Calculate new hash and compare with baseline
             new_hash = calculate_sha256(event.src_path)
+            
             if new_hash and new_hash != baseline[event.src_path]["hash"]:
                 logging.warning(f"File modified: {event.src_path}")
                 logging.warning(f"Original hash: {baseline[event.src_path]['hash']}")
@@ -129,6 +135,10 @@ class FileChangeHandler(FileSystemEventHandler):
                 print(f"[INTEGRITY VIOLATION] File modified: {event.src_path}")
                 print(f"  Original hash: {baseline[event.src_path]['hash']}")
                 print(f"  New hash: {new_hash}")
+                
+                # Send a detailed email alert
+                log_and_alert ('MODIFIED', event.src_path,
+                               f"Original Hash: {baseline[event.src_path]['hash']}\nNew Hash: {new_hash}")
         else:
             # Modification of a file not in our baseline
             logging.info(f"Modified file not in baseline: {event.src_path}")
@@ -143,6 +153,8 @@ class FileChangeHandler(FileSystemEventHandler):
             if event.src_path in baseline:
                 logging.warning(f"Baseline file moved from {event.src_path} to {event.dest_path}")
                 print(f"[INTEGRITY ALERT] Baseline file moved: {event.src_path} → {event.dest_path}")
+                log_and_alert('MOVED', event.src_path,
+                              f"File moved to: {event.dest_path}")
             else:
                 logging.info(f"Non-baseline file moved from {event.src_path} to {event.dest_path}")
                 print(f"[MOVED FILE] From {event.src_path} to {event.dest_path} (not in baseline)")

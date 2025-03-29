@@ -3,7 +3,28 @@ import os
 import sys
 import argparse
 import logging
+import subprocess
 from datetime import datetime
+
+def install_watchdog():
+    try:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'watchdog'])
+    except Exception as e:
+        print(f"Failed to install watchdog: {e}")
+        sys.exit(1)
+
+try:
+    import watchdog
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+except ImportError:
+    print("Watchdog not found. Attempting to install...")
+    install_watchdog()
+    
+    # Retry imports
+    import watchdog
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
 
 # Ensure the scripts directory is in the Python path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
