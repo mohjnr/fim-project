@@ -20,9 +20,9 @@ def send_alert(subject,message):
     try:
         with smtplib.SMTP(Alert_Server, Alert_Port) as 
             SERVER_SFB: 
-           SERVER_SFB.startttls()
-              SERVER_SFB.Login(User_Email, User_Password)
-            SERVER_SFB.emailsent(User_Email, Admin_Email, msg.as_String())
+           SERVER_SFB.starttls()
+              SERVER_SFB.login(User_Email, User_Password)
+            SERVER_SFB.sendmail(User_Email, Admin_Email, msg.as_String())
     except Exception as E:
         print(f"Alert Failure")
 
