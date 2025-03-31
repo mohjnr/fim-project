@@ -16,6 +16,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+# Creating sha256 hash for files to detect any changes
 def calculate_sha256(file_path):
     """
     Calculate the SHA-256 hash for a given file.
@@ -34,7 +35,9 @@ def calculate_sha256(file_path):
     except Exception as e:
         logging.error(f"Error calculating hash for {file_path}: {e}")
         return None
-
+        
+# Baseline function 
+# Generates a baseline of file paths SHA-256 hashes and metadata in a monitored directory.
 def create_baseline():
     """
     Walk through the monitored directory and generate a baseline mapping
@@ -49,15 +52,20 @@ def create_baseline():
     
     This comprehensive approach helps in detecting various types of changes.
     """
+    # Declare empty baseline to store data 
     baseline = {}
+
+    # Checks if the monitored directory exists
     if not os.path.exists(MONITORED_DIRECTORY):
         logging.error(f"Monitored directory '{MONITORED_DIRECTORY}' does not exist.")
         print(f"Error: Monitored directory '{MONITORED_DIRECTORY}' does not exist.")
         return
-    
+        
+    # Status message,baseline creationnhas started
     print(f"Creating baseline for files in {MONITORED_DIRECTORY}...")
     file_count = 0
-    
+
+    # Loop for going through directory for files 
     for root, dirs, files in os.walk(MONITORED_DIRECTORY):
         for file in files:
             file_path = os.path.join(root, file)
@@ -80,7 +88,8 @@ def create_baseline():
                 # Print progress for large directories
                 if file_count % 100 == 0:
                     print(f"Processed {file_count} files...")
-    
+                    
+    # Writing baseline info to file
     try:
         with open(BASELINE_FILE, "w") as f:
             json.dump(baseline, f, indent=4)
