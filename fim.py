@@ -6,6 +6,7 @@ import logging
 import subprocess
 from datetime import datetime
 
+# installing python package to monitor directories and generate logs
 def install_watchdog():
     try:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'watchdog'])
@@ -32,6 +33,7 @@ sys.path.append(BASE_DIR)
 
 from config import MONITORED_DIRECTORY, BASELINE_FILE, LOG_FILE
 
+# function to find directories for monitoring
 def setup_directories():
     """
     Ensure that the monitored directory exists.
@@ -41,7 +43,8 @@ def setup_directories():
         print(f"Created monitored directory: {MONITORED_DIRECTORY}")
     else:
         print(f"Monitored directory already exists: {MONITORED_DIRECTORY}")
-
+        
+# Starting point of File Integrity Monitoring System
 def main():
     """
     Main function to handle command-line arguments and run the appropriate FIM functions.
@@ -50,7 +53,8 @@ def main():
         description="File Integrity Monitoring System with Real-time Detection",
         formatter_class=argparse.RawTextHelpFormatter
     )
-    
+
+    # Displaying valid commands
     parser.add_argument(
         "command",
         choices=["setup", "baseline", "monitor", "check"],
@@ -61,7 +65,8 @@ def main():
         check: Perform a one-time integrity check
         """
     )
-    
+
+    # storing the parsed command-line arguments
     args = parser.parse_args()
     
     if args.command == "setup":
@@ -92,5 +97,6 @@ def main():
         from scripts.manual_check import perform_check
         perform_check()
 
+# Return to start of File integrity monitor 
 if __name__ == "__main__":
     main()
