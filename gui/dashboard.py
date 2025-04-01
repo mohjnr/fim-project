@@ -1,5 +1,6 @@
 # gui/dashboard.py
 import os
+os.environ["TK_SILENCE_DEPRECATION"] = "1"
 import sys
 import threading
 import tkinter as tk
