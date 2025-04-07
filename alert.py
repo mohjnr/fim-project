@@ -1,12 +1,12 @@
 import os
 import hashlib
-import smtlib
-from email.mime.text import MIMETEXT
+import smtplib
+from email.mime.text import MIMEText
 
 # EMAIL Configuration
 # Credentials for alert notification
 
-Alert_Server = "smtp.gmail.com
+Alert_Server = "smtp.gmail.com"
 Alert_Port = 587
 User_Email = "defaultuser@gmail.com"
 User_Password = "!2025IrieBl@ze"
@@ -16,18 +16,17 @@ Admin_Email= "admin@safebank.com"
 
 # Defining alert message information 
 def send_alert(subject,message):
-    msg = MIMETEXT(message)
+    msg = MIMEText(message)
     msg['Subject'] = subject
     msg['From'] = User_Email
     msg['To'] = Admin_Email
     
 # Sending an email alert using the Simple Mail Transfer Protocol (SMTP)
     try:
-        with smtplib.SMTP(Alert_Server, Alert_Port) as 
-            SERVER_SFB: 
-           SERVER_SFB.starttls()
-              SERVER_SFB.login(User_Email, User_Password)
-            SERVER_SFB.sendmail(User_Email, Admin_Email, msg.as_String())
+        with smtplib.SMTP(Alert_Server, Alert_Port) as SERVER_SFB:
+            SERVER_SFB.starttls()
+            SERVER_SFB.login(User_Email, User_Password)
+            SERVER_SFB.sendmail(User_Email, Admin_Email, msg.as_string())
     except Exception as E:
         print(f"Alert Failure")
         
